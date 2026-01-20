@@ -1,0 +1,36 @@
+{
+  "name": "smart-appointment-booking-system",
+  "version": "1.0.0",
+  "description": "Smart Appointment Booking System - Kotak Securities Case Study",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "test": "cd backend && npm test",
+    "test:all": "concurrently \"cd backend && npm test\" \"cd frontend && npm test -- --run\"",
+    "test:coverage": "concurrently \"cd backend && npm run test:coverage\" \"cd frontend && npm test -- --coverage --run\"",
+    "db:setup": "cd backend && npm run db:generate && npm run db:push && npm run db:seed",
+    "start": "cd backend && npm start",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm start"
+  },
+  "keywords": [
+    "appointment",
+    "booking",
+    "react",
+    "nodejs",
+    "postgresql",
+    "kotak-securities"
+  ],
+  "author": "Candidate",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}

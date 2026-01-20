@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: appointment_db
+    environment:
+      POSTGRES_USER: appointment_user
+      POSTGRES_PASSWORD: appointment_pass
+      POSTGRES_DB: appointment_booking
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appointment_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: appointment_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - appointment_network
+
+volumes:
+  postgres_data:
+
+networks:
+  appointment_network:
+    driver: bridge

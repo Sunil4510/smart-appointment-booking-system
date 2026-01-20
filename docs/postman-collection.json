@@ -1,0 +1,451 @@
+{
+  "info": {
+    "name": "Smart Appointment Booking System API",
+    "description": "Complete API collection for the Smart Appointment Booking System",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@test.com\",\n  \"password\": \"testpass123\",\n  \"name\": \"Test Customer\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"CUSTOMER\",\n  \"timezone\": \"America/New_York\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"customer@test.com\",\n  \"password\": \"testpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('authToken', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test Customer\",\n  \"phone\": \"+1234567891\",\n  \"timezone\": \"America/Los_Angeles\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Providers",
+      "item": [
+        {
+          "name": "Get All Providers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Provider by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/providers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Provider Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessName\": \"Test Medical Clinic\",\n  \"description\": \"Professional healthcare services\",\n  \"bio\": \"Experienced healthcare provider\",\n  \"address\": \"123 Test Street\",\n  \"city\": \"Test City\",\n  \"state\": \"TC\",\n  \"zipCode\": \"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["providers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"]
+            }
+          }
+        },
+        {
+          "name": "Get Services by Provider",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/services?providerId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"],
+              "query": [
+                {
+                  "key": "providerId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"General Consultation\",\n  \"description\": \"Comprehensive health checkup\",\n  \"duration\": 30,\n  \"price\": 150.00,\n  \"category\": \"Medical\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Time Slots",
+      "item": [
+        {
+          "name": "Get Available Time Slots",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/timeslots?providerId=1&date=2026-01-21",
+              "host": ["{{baseUrl}}"],
+              "path": ["timeslots"],
+              "query": [
+                {
+                  "key": "providerId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-01-21"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Time Slots",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-01-21\",\n  \"endDate\": \"2026-01-27\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"slotDuration\": 30,\n  \"breakTimes\": [\n    {\n      \"startTime\": \"12:00\",\n      \"endTime\": \"13:00\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/timeslots",
+              "host": ["{{baseUrl}}"],
+              "path": ["timeslots"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Book Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": 1,\n  \"timeSlotId\": 1,\n  \"appointmentDate\": \"2026-01-21T09:00:00.000Z\",\n  \"notes\": \"First time patient\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"]
+            }
+          }
+        },
+        {
+          "name": "Get My Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update/Reschedule Appointment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"timeSlotId\": 2,\n  \"appointmentDate\": \"2026-01-22T14:00:00.000Z\",\n  \"notes\": \"Rescheduled appointment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Personal emergency\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/appointments/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "1", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Get Appointment Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/appointments/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["appointments", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

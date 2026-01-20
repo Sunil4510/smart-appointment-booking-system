@@ -1,0 +1,166 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  passwordHash String  @map("password_hash")
+  name        String
+  phone       String?
+  role        UserRole @default(CUSTOMER)
+  timezone    String   @default("UTC")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  provider     Provider?
+  appointments Appointment[]
+  reviews      Review[]
+
+  @@map("users")
+}
+
+model Provider {
+  id           Int     @id @default(autoincrement())
+  userId       Int     @unique @map("user_id")
+  businessName String  @map("business_name")
+  description  String?
+  bio          String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String? @map("zip_code")
+  isVerified   Boolean @default(false) @map("is_verified")
+  isActive     Boolean @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services     Service[]
+  timeSlots    TimeSlot[]
+  appointments Appointment[]
+  reviews      Review[]
+
+  @@map("providers")
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  providerId  Int     @map("provider_id")
+  name        String
+  description String?
+  duration    Int     // in minutes
+  price       Decimal @db.Decimal(10, 2)
+  category    String?
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  provider     Provider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+
+  @@map("services")
+}
+
+model TimeSlot {
+  id          Int      @id @default(autoincrement())
+  providerId  Int      @map("provider_id")
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+  isAvailable Boolean  @default(true) @map("is_available")
+  isBlocked   Boolean  @default(false) @map("is_blocked") // Provider blocked this slot
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations  
+  provider    Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  appointment Appointment?
+
+  // Ensure no overlapping slots for same provider
+  @@unique([providerId, startTime])
+  @@map("time_slots")
+}
+
+model Appointment {
+  id              Int               @id @default(autoincrement())
+  userId          Int               @map("user_id")
+  providerId      Int               @map("provider_id")
+  serviceId       Int               @map("service_id")
+  timeSlotId      Int               @unique @map("time_slot_id")
+  appointmentDate DateTime          @map("appointment_date")
+  status          AppointmentStatus @default(PENDING)
+  totalPrice      Decimal           @map("total_price") @db.Decimal(10, 2)
+  notes           String?
+  cancelReason    String?           @map("cancel_reason")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+  service  Service  @relation(fields: [serviceId], references: [id])
+  timeSlot TimeSlot @relation(fields: [timeSlotId], references: [id])
+  payment  Payment?
+  review   Review?
+
+  @@map("appointments")
+}
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  appointmentId Int      @unique @map("appointment_id")
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("USD")
+  status        String   // PENDING, COMPLETED, FAILED, REFUNDED
+  paymentMethod String?  @map("payment_method")
+  transactionId String?  @map("transaction_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@map("payments")
+}
+
+model Review {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  providerId    Int      @map("provider_id")
+  appointmentId Int      @unique @map("appointment_id")
+  rating        Int      // 1-5
+  comment       String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  provider    Provider    @relation(fields: [providerId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+
+  @@map("reviews")
+}
